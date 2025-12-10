@@ -1,33 +1,34 @@
-// server.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
 const app = express();
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// IMPORT SUMMARY SERVICE
-const generateSummary = require("./services/openrouter");
+// Debugging: Check if OpenRouter key exists
+console.log("🔑 OPENROUTER_API_KEY:", process.env.OPENROUTER_API_KEY ? "YES" : "NO");
+console.log("🔑 SERP_API_KEY:", process.env.SERP_API_KEY ? "YES" : "NO");
 
-// SUMMARY ROUTE (POST REQUEST)
-app.post("/api/summary", async (req, res) => {
-    const { text } = req.body;
-    if (!text) return res.status(400).json({ summary: "No text provided." });
-
-    const summary = await generateSummary(text);
-    res.json({ summary });
-});
-
-// IMPORT DEALS ROUTE (you already have it)
+// Import Routes
 const searchRoute = require("./api/search");
-app.use("/api", searchRoute);
+const summaryRoute = require("./api/summary");
 
-// Default route
+// Use Routes
+app.use("/api/search", searchRoute);
+app.use("/api/summary", summaryRoute);
+
+// Default Route
 app.get("/", (req, res) => {
-    res.send("Dealfury Backend Running...");
+    res.send("DealFury Backend Running");
 });
 
-// Render requires this
+// Start Server
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log("Backend running on port", PORT));
+
+app.listen(PORT, () => {
+    console.log(`🚀 Backend running on port ${PORT}`);
+});
+
